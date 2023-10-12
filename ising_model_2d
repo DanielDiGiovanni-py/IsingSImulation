@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Apr  9 06:33:22 2021
+
+@author: daniel
+"""
+
+# Simulating the Ising model
+from __future__ import division
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.fft import rfft, rfftfreq, irfft
+
+class Ising():
+    ''' Simulating the Ising model '''
+    def __init__(self, L, T):
+        self.M = []
+        self.E = []
+        self.L = L
+        self.T = T
+        
+    def monte_carlo_move(self, spins, L, beta, rule):
+        '''do a monte calro step with metropolis or glauber algorithm'''
+        for i in range(L):
+            for j in range(L):
+                # random coordinates
+                x = np.random.randint(0, L)
+                y = np.random.randint(0, L)
+                S = spins[x, y]
+                neighbours = spins[(x+1)%L, y] + spins[x, (y+1)%L]\
+                    + spins[(x-1)%L, y] + spins[x, (y-1)%L]
+                delta_E = 2*S*neighbours
+                
+                if rule == "metropolis":
+                    # metropolis rule
+                    if delta_E <= 0:
+                        S = -S
+                        
+                    elif np.random.rand() < np.exp((-delta_E)*beta):
+                        S = -S
+                
+                elif rule == "glauber":
+                    # glauber rule
+                    if np.random.rand() < 0.5*(1-math.tanh(delta_E*beta/2)):
+                        S = -S
+                    
+                spins[x, y] = S 
+        return spins
+    
+    def simulate(self, rule="metropolis"):   
+        ''' This module simulates the Ising model'''
+        L, T     = self.L, self.T  # Initialse the lattice
+        spins = 2*np.random.randint(2, size=(L,L))-1
+        f = plt.figure(figsize=(15, 15), dpi=80);    
+        self.configPlot(f, spins, 0, L, 1);
+        mc_steps = 1001
+        # divide by number of samples, and by system size to get intensive values
+        n = 1.0/(mc_steps*L*L)
+        M_temp = 0
+        beta = 1.0/T;
+        E_temp = M_temp = 0
+        for i in range(mc_steps):
+            self.monte_carlo_move(spins, L, beta, rule)
+            if i%10 == 0:
+                En = self.calc_energy(spins, L)
+                Mag = self.calc_magetization(spins)
+        
+                E_temp = E_temp + En
+                M_temp = M_temp + Mag
+                
+                self.E.append(n*E_temp)
+                self.M.append(n*M_temp)
+
+            if i == 1:
+                self.configPlot(f, spins, i, L, 2);       
+            if i == 4:       
+                self.configPlot(f, spins, i, L, 3);
+            if i == 32:      
+                self.configPlot(f, spins, i, L, 4);
+            if i == 100:     
+                self.configPlot(f, spins, i, L, 5);
+            if i == 1000:    
+                self.configPlot(f, spins, i, L, 6);
+            
+    def calc_energy(self, spins, L):
+        '''get the energy of a configuration'''
+        energy = 0
+        for i in range(spins.shape[0]):
+            for j in range(spins.shape[1]):
+                S = spins[i, j]
+                neighbours = spins[(i+1)%L, j] + spins[(i,(j+1)%L)]\
+                    + spins[(i-1)%L, j] + spins[i, (j-1)%L]
+                energy += -neighbours*S
+        return energy/4
+    
+    def calc_magetization(self, spins):
+        '''return the magnetization of a give configuration'''
+        mag = np.sum(spins)/2
+        return mag
+                 
+                    
+    def configPlot(self, f, spins, i, L, n_):
+        ''' This modules plts the configuration once passed to it along with time etc '''
+        X, Y = np.meshgrid(range(L), range(L))
+        sp =  f.add_subplot(3, 3, n_ )  
+        plt.setp(sp.get_yticklabels(), visible=False)
+        plt.setp(sp.get_xticklabels(), visible=False)      
+        plt.pcolormesh(X, Y, spins, cmap=plt.cm.RdBu);
+        plt.title('Time=%d'%i); plt.axis('tight')    
+    plt.show()
+
+model = Ising(32, 3.2691)
+model.simulate()
+model.simulate(rule="glauber")
+m_met = model.M[:101]
+m_glau = model.M[101:]
+
+yf = rfft(m_met)
+xf = rfftfreq(len(m_met), 1/10)
+plt.plot(xf, np.abs(yf))
+plt.show()
+
+tau_met = abs(yf[0])/np.sqrt(np.mean([i**2 for i in m_met]))
+
+new_sig = irfft(yf)
+plt.plot(new_sig[:1000])
+plt.show()
+
+yf = rfft(m_glau)
+xf = rfftfreq(len(m_glau), 1/10)
+plt.plot(xf, np.abs(yf))
+plt.show()
+
+tau_glau = abs(yf[0])/np.sqrt(np.mean([i**2 for i in m_glau]))
+
+new_sig = irfft(yf)
+plt.plot(new_sig[:1000])
+plt.show()
+
+tc_model = Ising(32, 2.2691)
+tc_model.simulate()
+tc_model.simulate(rule="glauber")
+m_met = tc_model.M[:101]
+m_glau = tc_model.M[101:]
+
+tc_yf = rfft(m_met)
+tc_xf = rfftfreq(len(m_met), 1/10)
+plt.plot(tc_xf, np.abs(tc_yf))
+plt.show()
+
+tc_tau_met = abs(tc_yf[0])/np.sqrt(np.mean([i**2 for i in m_met]))
+
+new_sig = irfft(tc_yf)
+plt.plot(new_sig[:1000])
+plt.show()
+
+tc_yf = rfft(m_glau)
+tc_xf = rfftfreq(len(m_glau), 1/10)
+plt.plot(tc_xf, np.abs(tc_yf))
+plt.show()
+
+tc_tau_glau = abs(tc_yf[1])/np.sqrt(np.mean([i**2 for i in m_glau]))
+
+new_sig = irfft(tc_yf)
+plt.plot(new_sig[:1000])
+plt.show()
