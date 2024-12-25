@@ -42,7 +42,7 @@ This project implements a **2D Ising model** on an \(`L` x `L`\) lattice at temp
 
 ## Features
 
-- **Class-Based**: An `Ising` class encapsulates parameters (\(L\), \(T\)) and manages simulation data (energy \(E\) and magnetization \(M\)).  
+- **Class-Based**: An `Ising` class encapsulates parameters $(L,T)$ and manages simulation data energy $\(E\)$ and magnetization $\(M\)$.  
 - **Monte Carlo Updates**:
   - **Metropolis rule**  
   - **Glauber rule**  
@@ -52,7 +52,7 @@ This project implements a **2D Ising model** on an \(`L` x `L`\) lattice at temp
   - **Power Spectrum** of the magnetization signal.  
   - **Approximate Autocorrelation Time** estimation.  
   - **Inverse FFT** to reconstruct signals.  
-- **Temperature Variation**: Demonstrates simulations at different temperatures, including near the critical point (2D Ising \( T_c \approx 2.27 \)).
+- **Temperature Variation**: Demonstrates simulations at different temperatures, including near the critical point (2D Ising (T_c ~ 2.27)).
 
 ---
 
@@ -97,13 +97,13 @@ pip install numpy matplotlib scipy
 ## Usage
 
 1. **Main Simulation**:  
-   - The script runs two simulations on a 32 x 32 grid at \(T = 3.2691\).  
+   - The script runs two simulations on a 32 x 32 grid at $\(T = 3.2691\)$.  
    - First with the **Metropolis** rule, then with **Glauber**.  
    - Plots snapshots of spin configurations at selected timesteps.  
    - Computes and plots the FFT of the magnetization signal, obtains an approximate autocorrelation time, then plots the inverse FFT.  
 
 2. **Critical Temperature**:  
-   - Repeats the same procedure at \(T = 2.2691\) (near the 2D Ising critical temperature).  
+   - Repeats the same procedure at $\(T = 2.2691\)$ (near the 2D Ising critical temperature).  
 
 3. **Adjusting Parameters**:  
    - **Lattice Size**: Change `L` in the constructor, e.g. `Ising(64, 2.2691)`.  
@@ -130,23 +130,23 @@ pip install numpy matplotlib scipy
     - `calc_energy(...)`: Computes total energy of the lattice.  
     - `calc_magnetization(...)`: Computes the total magnetization.  
     - `config_plot(...)`: Helper function to visualize spin configurations.  
-  - **`if __name__ == "__main__":**: Runs two sets of simulations (at `T=3.2691` and `T=2.2691`) and performs FFT analysis.
+  - **`if __name__ == "__main__"`**: Runs two sets of simulations (at `T=3.2691` and `T=2.2691`) and performs FFT analysis.
 
 ---
 
 ## Details & Methods
 
 1. **Ising Model**:  
-   - Each site has a spin \( s_{i,j} \in \{+1, -1\} \).  
-   - **Energy** per site is \( E = - \sum \limits_{\langle i,j\rangle} s_i \, s_j \), summing over nearest neighbors.  
+   - Each site has a spin $\(s_{i,j} \in \{+1, -1\}\)$.  
+   - **Energy** per site is $\(E = -\sum \limits_{\langle i,j\rangle}s_i\,s_j\)$ summing over nearest neighbors.  
 
 2. **Update Rules**:
-   - **Metropolis**: Flip a random spin if \(\Delta E \le 0\). Else flip with probability \(\exp(-\Delta E \beta)\).  
-   - **Glauber**: Flip a random spin with probability \( 0.5 \left(1 - \tanh\left(\frac{\Delta E \, \beta}{2}\right)\right)\).  
+   - **Metropolis**: Flip a random spin if $\(\Delta E \le 0\)$. Else flip with probability $\(\exp(-\Delta E \beta)\)$.  
+   - **Glauber**: Flip a random spin with probability $\( 0.5 \left(1 - \tanh\left(\frac{\Delta E \, \beta}{2}\right)\right)\)$.  
 
 3. **FFT & Autocorrelation**:
    - Magnitudes of the FFT give an estimate of power at different frequencies.  
-   - Approximate autocorrelation time \(\tau \approx \frac{|A_0|}{\sqrt{\langle m^2 \rangle}}\), where \(A_0\) is the zero-frequency component and \(\langle m^2 \rangle\) is the mean square magnetization.  
+   - Approximate autocorrelation time $\(\tau \approx \frac{|A_0|}{\sqrt{\langle m^2 \rangle}}\)$, where $\(A_0\)$ is the zero-frequency component and $\(\langle m^2 \rangle\)$ is the mean square magnetization.  
    - **Inverse FFT** used to reconstruct signals, as a demonstration.
 
 ---
