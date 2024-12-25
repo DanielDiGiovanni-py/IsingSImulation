@@ -76,8 +76,8 @@ pip install numpy matplotlib scipy
 1. **Clone** the repository:
 
    ```bash
-   git clone https://github.com/yourusername/ising-model.git
-   cd ising-model
+   git clone https://github.com/DanielDiGiovanni-py/IsingSImulation.git
+   cd IsingSImulation
    ```
 
 2. **Install dependencies**:
